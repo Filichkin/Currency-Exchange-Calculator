@@ -38,9 +38,25 @@ import "./index.css";
 
 //https://api.frankfurter.app/latest?amount=100&from=EUR&to=USD
 
-const API_URL = "https://api.frankfurter.app/";
+const API_URL = "https://api.frankfurter.app";
 
 function App() {
+  const [currencies, setCurrencies] = useState([]);
+  const [fromCurrency, setFromCurrency] = useState("USD");
+  const [toCurrency, setToCurrency] = useState("EUR");
+  const [amount, setAmount] = useState(1);
+
+  useEffect(() => {async function getCurrencies() {
+    const res = await fetch(`${API_URL}/latest`);
+    const data = await res.json();
+    console.log(data);
+    setCurrencies(Object.keys(data.rates));
+  }
+  getCurrencies();
+}, []);
+  
+  console.log(currencies);
+
   return (
     <div className="app">
       <h1>Currency Exchange Calculator</h1>
@@ -49,14 +65,25 @@ function App() {
         <p className="error"></p>
 
         <div className="input-group">
-          <input type="number" placeholder="Amount" className="input-field" />
-          <select className="dropdown">
-            <option></option>
+          <input value={amount} onChange={(e) => setAmount(e.target.value)} type="number" placeholder="Amount" className="input-field" />
+
+          <select onChange={(e) => setFromCurrency(e.target.value)} className="dropdown">
+            {currencies.map((item) => (
+              <option key={item} value={item}>
+                {item}
+              </option>))}
           </select>
+
           <span className="arrow">→</span>
-          <select className="dropdown">
-            <option></option>
+
+          <select onChange={(e) => setToCurrency(e.target.value)} className="dropdown">
+            {currencies.map((item) => (
+              <option key={item} value={item}>
+                {item}
+              </option>))}
+            
           </select>
+
         </div>
         <button className="convert-button">Convert</button>
         <p className="loading">Converting...</p>
