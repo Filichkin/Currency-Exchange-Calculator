@@ -45,17 +45,24 @@ function App() {
   const [fromCurrency, setFromCurrency] = useState("USD");
   const [toCurrency, setToCurrency] = useState("EUR");
   const [amount, setAmount] = useState(1);
+  const [convertedAmount, setConvertedAmount] = useState(null);
 
   useEffect(() => {async function getCurrencies() {
     const res = await fetch(`${API_URL}/latest`);
     const data = await res.json();
-    console.log(data);
     setCurrencies(Object.keys(data.rates));
   }
   getCurrencies();
 }, []);
-  
-  console.log(currencies);
+
+  async function handleConvert() {
+    const res = await fetch(
+      `${API_URL}/latest?amount=${amount}&from=${fromCurrency}&to=${toCurrency}`
+    );
+    const data = await res.json();
+    console.log(data);
+    setConvertedAmount(data.rates[toCurrency])
+  }
 
   return (
     <div className="app">
@@ -67,28 +74,32 @@ function App() {
         <div className="input-group">
           <input value={amount} onChange={(e) => setAmount(e.target.value)} type="number" placeholder="Amount" className="input-field" />
 
-          <select onChange={(e) => setFromCurrency(e.target.value)} className="dropdown">
-            {currencies.map((item) => (
-              <option key={item} value={item}>
-                {item}
-              </option>))}
+          <select 
+            value={fromCurrency }
+            onChange={(e) => setFromCurrency(e.target.value)}
+            className="dropdown">
+              {currencies.map((item) => (
+                <option key={item} value={item}>
+                  {item}
+                </option>))}
           </select>
 
           <span className="arrow">→</span>
 
-          <select onChange={(e) => setToCurrency(e.target.value)} className="dropdown">
-            {currencies.map((item) => (
-              <option key={item} value={item}>
-                {item}
-              </option>))}
-            
+          <select
+            value={toCurrency}
+            onChange={(e) => setToCurrency(e.target.value)}
+            className="dropdown">
+              {currencies.map((item) => (
+                <option key={item} value={item}>
+                  {item}
+                </option>))}
           </select>
-
         </div>
-        <button className="convert-button">Convert</button>
+        <button className="convert-button" onClick={handleConvert}>Convert</button>
         <p className="loading">Converting...</p>
 
-        <p className="result"></p>
+        <p className="result">{convertedAmount}</p>
       </div>
     </div>
   );
